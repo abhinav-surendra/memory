@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:memory/chart.dart';
 import 'package:memory/dao/person_dao.dart';
 import 'package:memory/dao/person_photograph_dao.dart';
 import 'package:memory/entity/person.dart';
@@ -23,6 +24,8 @@ class QuizState extends State<QuizNavigator> {
   List<Person> _persons;
   bool _isLoading = true;
   bool _isInstruction = false;
+  int total;
+  int correct = 0;
 
   @override
   void initState() {
@@ -33,6 +36,8 @@ class QuizState extends State<QuizNavigator> {
   void _initData() async {
     _itemImages = await PersonPhotographDao().getAllPersonPhotographs()
       ..shuffle();
+    _itemImages = _itemImages.take(5).toList();
+    total = _itemImages.length;
     _persons = await PersonDao().getPersons();
     setState(() {
       _isLoading = false;
@@ -85,8 +90,7 @@ class QuizState extends State<QuizNavigator> {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                    Flexible(
-                      flex: 8,
+                    Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ClipRRect(
@@ -98,16 +102,12 @@ class QuizState extends State<QuizNavigator> {
                         ),
                       ),
                     ),
-                    Flexible(
-                      flex: 3,
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: _isInstruction
                           ? _buildInstruction(context)
                           : _buildQuiz(question, choices),
                     ),
-                    Flexible(
-                      flex: 2,
-                      child: Container(),
-                    )
                   ])),
               _isInstruction
                   ? Container(
@@ -133,12 +133,35 @@ class QuizState extends State<QuizNavigator> {
                   : Container(),
             ],
           )
-        : Container(
-            color: Colors.white,
-            constraints: BoxConstraints.expand(),
-            child: Center(
-              child: Text('Done'),
-            ),
+        : Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  color: Colors.green,
+                  child: Text(
+                    'Correct: $correct',
+                    style: TextStyle(fontSize: 48.0, color: Colors.white),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  color: Colors.red,
+                  child: Text(
+                    'Incorrect: ${total - correct}',
+                    style: TextStyle(fontSize: 48.0, color: Colors.white),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Chart(
+                  correct: correct,
+                  total: total,
+                ),
+              ),
+            ],
           );
   }
 
@@ -168,6 +191,7 @@ class QuizState extends State<QuizNavigator> {
 
   void _onChoice(BuildContext context, bool isCorrect) {
     if (isCorrect) {
+      correct++;
       _itemImages.removeAt(0);
       _isInstruction = false;
     } else {

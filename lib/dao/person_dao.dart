@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:memory/app_database.dart';
+import 'package:memory/dao/person_photograph_dao.dart';
 import 'package:memory/entity/person.dart';
+import 'package:memory/entity/person_photograph.dart';
 import 'package:sqflite/sqflite.dart';
 
 class PersonDao {
@@ -33,6 +35,19 @@ class PersonDao {
   Future<Null> update(Person person) async {
     final db = await new AppDatabase().getDb();
     await db.update(Person.table, person.toMap(),
+        where: '${Person.idCol} = ?', whereArgs: [person.id]);
+  }
+
+  Future<Null> delete(Person person) async {
+    final db = await new AppDatabase().getDb();
+    final personPhotographs =
+        await PersonPhotographDao().getPersonPhotographsByPerson(person.id);
+    await Future.forEach(
+        personPhotographs,
+        (pp) async => await db.delete(PersonPhotograph.table,
+            where: '${PersonPhotograph.personIdCol} = ?',
+            whereArgs: [person.id]));
+    await db.delete(Person.table,
         where: '${Person.idCol} = ?', whereArgs: [person.id]);
   }
 }

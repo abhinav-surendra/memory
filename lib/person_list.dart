@@ -35,6 +35,15 @@ class _PersonListState extends State<PersonList> {
   }
 
   @override
+  void didUpdateWidget(PersonList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      _isLoading = true;
+    });
+    _initData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     if (_isLoading) {
@@ -52,33 +61,40 @@ class _PersonListState extends State<PersonList> {
                 padding: EdgeInsets.all(8.0),
                 child: Card(
                   child: InkWell(
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: Hero(
-                            tag: p.id,
-                            child: AspectRatio(
-                              aspectRatio: 1.0,
-                              child: CircleAvatar(
-                                backgroundImage: FileImage(
-                                  File(p.imageFile),
+                      child: Column(
+                        children: <Widget>[
+                          Expanded(
+                            child: Hero(
+                              tag: p.id,
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: CircleAvatar(
+                                  backgroundImage: FileImage(
+                                    File(p.imageFile),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(p.name ?? 'Name'),
-                        )
-                      ],
-                    ),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(p.name ?? 'Name'),
+                          )
+                        ],
+                      ),
+                      onTap: () async {
+                        bool refresh =
+                            await Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => PersonDetail(
                                 person: p,
                               ),
-                        )),
-                  ),
+                        ));
+                        setState(() {
+                          print('refresh');
+                          _isLoading = true;
+                          _initData();
+                        });
+                      }),
                 ),
               ))
           .toList(growable: false),

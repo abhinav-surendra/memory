@@ -87,6 +87,13 @@ class _PersonDetailState extends State<PersonDetail> {
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () => setState(() => _isEditMode = true),
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () async {
+              await PersonDao().delete(widget.person);
+              Navigator.of(context).pop(true);
+            },
           )
         ],
       ),

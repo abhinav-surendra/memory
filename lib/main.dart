@@ -162,5 +162,6 @@ class MyHomePageState extends State<MyHomePage> {
       imageFile: finalFilename,
     );
     await PersonDao().insert(person);
+    setState(() {});
   }
 }

@@ -26,6 +26,7 @@ class QuizState extends State<Quiz> {
 
   @override
   Widget build(BuildContext context) {
+    print('quiz:build');
     return Table(
       children: <TableRow>[
         TableRow(

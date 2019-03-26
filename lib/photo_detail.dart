@@ -29,6 +29,10 @@ class _PhotoDetailState extends State<PhotoDetail> {
   double width;
   bool _isLoading = true;
 
+  final accessKey = 'AKIAJT53KIIZJMRIJZAA';
+  final secretKey = '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';
+  final region = 'ap-south-1';
+
   @override
   void initState() {
     super.initState();
